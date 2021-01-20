@@ -20,4 +20,5 @@ void loop(){				// equal to main function
 }	
 
 ```
-  - Verify and compile project on Arduino IDE
+  - **Verify** and **upload** project on Arduino IDE
+![IDE Gui](https://github.com/weizhangccnu/Arduino_Project/blob/main/Img/IDE_Gui.jpg)
