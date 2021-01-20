@@ -5,7 +5,7 @@
   - This website page listed all the language reference for Arduino: [Language Reference](https://www.arduino.cc/reference/en/)
 ### 3. A simple example to illustrate how to use Arduino IDE.
   - Turns an LED on for a few seconds, then off for a few seconds, repeatedly.
-```
+``` c
 int led = 13;				// define led port, see the schematic
 
 void setup(){				// initial pin mode
