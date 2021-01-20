@@ -20,3 +20,4 @@ void loop(){				// equal to main function
 }	
 
 ```
+  - Verify and compile project on Arduino IDE
