@@ -15,6 +15,7 @@ import pyvisa as visa
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1.inset_locator import zoomed_inset_axes
 from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+plt.rcParams['font.family'] = "Times New Roman"
 #========================================================================================#
 ## plot parameters
 lw_grid = 0.5                   # grid linewidth
@@ -30,17 +31,18 @@ This script is used to receive UART data from Camera (Model: OV7670).
 #========================================================================================#
 def main():
     read_bytes = []
+    Start_Frame = 5
     ser = serial.Serial('COM5', baudrate=1000000, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
     print("Serial port: %s"%ser.name)
     i = 0
     while(True):
         if ser.in_waiting:
-            if i < 5:
+            if i < Start_Frame:
                 if ser.readline(ser.in_waiting) == b'*RDY*':            # find the first "*RDY*"
                     i += 1
-                    if i == 5:
+                    if i == Start_Frame:
                         print("Start receiving camera data...")
-            elif i == 5:                                                # receive one frame camera data
+            elif i == Start_Frame:                                                # receive one frame camera data
                 byte_str = ser.readline(ser.in_waiting)
                 if (byte_str == b'*RDY*'):
                     i += 1
@@ -55,9 +57,10 @@ def main():
         for i in range(len(read_bytes)):
             infile.write("%d\n"%read_bytes[i])
 
-    x = np.reshape(read_bytes, (320, 240))                              # plot image
+    x = np.reshape(read_bytes, (240, 320))                              # plot image
     plt.imshow(x, cmap='gray', vmin=0, vmax=255)
-    plt.show()
+    plt.savefig("Recovered_Image.pdf", orientation='landscape', dpi=fig_dpi, bbox_inches='tight')         # save figure
+    plt.clf()
 #========================================================================================#
 if __name__ == "__main__":
     main()
