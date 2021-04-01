@@ -1,7 +1,7 @@
 //
 // Source code for application to transmit image from ov7670 to PC via USB
 // By Siarhei Charkes in 2015
-// http://privateblog.info 
+// http://privateblog.info
 //
 
 #include <stdint.h>
@@ -119,12 +119,12 @@
 #define COM17_AECWIN          0xc0  /* AEC window - must match COM4 */
 #define COM17_CBAR          0x08  /* DSP Color bar */
 /*
-* This matrix defines how the colors are generated, must be
-* tweaked to adjust hue and saturation.
-*
-* Order: v-red, v-green, v-blue, u-red, u-green, u-blue
-* They are nine-bit signed quantities, with the sign bit
-* stored in0x58.Sign for v-red is bit 0, and up from there.
+  This matrix defines how the colors are generated, must be
+  tweaked to adjust hue and saturation.
+
+  Order: v-red, v-green, v-blue, u-red, u-green, u-blue
+  They are nine-bit signed quantities, with the sign bit
+  stored in0x58.Sign for v-red is bit 0, and up from there.
 */
 #define REG_CMATRIX_BASE  0x4f
 #define CMATRIX_LEN           6
@@ -276,13 +276,13 @@
 #define AWBC12            0x5e  /* AWB Control 12 */
 #define REG_GFI           0x69  /* Fix gain control */
 #define GGAIN           0x6a  /* G Channel AWB Gain */
-#define DBLV            0x6b  
+#define DBLV            0x6b
 #define AWBCTR3           0x6c  /* AWB Control 3 */
 #define AWBCTR2           0x6d  /* AWB Control 2 */
 #define AWBCTR1           0x6e  /* AWB Control 1 */
 #define AWBCTR0           0x6f  /* AWB Control 0 */
 
-struct regval_list{
+struct regval_list {
   uint8_t reg_num;
   uint16_t value;
 };
@@ -300,12 +300,12 @@ const struct regval_list qvga_ov7670[] PROGMEM = {
   { REG_VREF, 0x0a },
 
 
-/*  { REG_HSTART, 0x16 },
-  { REG_HSTOP, 0x04 },
-  { REG_HREF, 0x24 },
-  { REG_VSTART, 0x02 },
-  { REG_VSTOP, 0x7a },
-  { REG_VREF, 0x0a },*/
+  /*  { REG_HSTART, 0x16 },
+    { REG_HSTOP, 0x04 },
+    { REG_HREF, 0x24 },
+    { REG_VSTART, 0x02 },
+    { REG_VSTOP, 0x7a },
+    { REG_VREF, 0x0a },*/
   { 0xff, 0xff }, /* END MARKER */
 };
 
@@ -330,8 +330,8 @@ const struct regval_list ov7670_default_regs[] PROGMEM = {//from the linux drive
   { REG_TSLB, 0x04 }, /* OV */
   { REG_COM7, 0 },  /* VGA */
   /*
-  * Set the hardware window.  These values from OV don't entirely
-  * make sense - hstop is less than hstart.  But they work...
+    Set the hardware window.  These values from OV don't entirely
+    make sense - hstop is less than hstart.  But they work...
   */
   { REG_HSTART, 0x13 }, { REG_HSTOP, 0x01 },
   { REG_HREF, 0xb6 }, { REG_VSTART, 0x02 },
@@ -352,7 +352,7 @@ const struct regval_list ov7670_default_regs[] PROGMEM = {//from the linux drive
   { 0x86, 0xaf }, { 0x87, 0xc4 },
   { 0x88, 0xd7 }, { 0x89, 0xe8 },
   /* AGC and AEC parameters.  Note we start by disabling those features,
-  then turn them only after tweaking the values. */
+    then turn them only after tweaking the values. */
   { REG_COM8, COM8_FASTAEC | COM8_AECSTEP },
   { REG_GAIN, 0 }, { REG_AECH, 0 },
   { REG_COM4, 0x40 }, /* magic reserved bit */
@@ -434,22 +434,22 @@ const struct regval_list ov7670_default_regs[] PROGMEM = {//from the linux drive
 };
 
 
-void error_led(void){
+void error_led(void) {
   DDRB |= 32;//make sure led is output
-  while (1){//wait for reset
+  while (1) { //wait for reset
     PORTB ^= 32;// toggle led
     _delay_ms(100);
   }
 }
 
-void twiStart(void){
+void twiStart(void) {
   TWCR = _BV(TWINT) | _BV(TWSTA) | _BV(TWEN);//send start
   while (!(TWCR & (1 << TWINT)));//wait for start to be transmitted
   if ((TWSR & 0xF8) != TW_START)
     error_led();
 }
 
-void twiWriteByte(uint8_t DATA, uint8_t type){
+void twiWriteByte(uint8_t DATA, uint8_t type) {
   TWDR = DATA;
   TWCR = _BV(TWINT) | _BV(TWEN);
   while (!(TWCR & (1 << TWINT))) {}
@@ -457,7 +457,7 @@ void twiWriteByte(uint8_t DATA, uint8_t type){
     error_led();
 }
 
-void twiAddr(uint8_t addr, uint8_t typeTWI){
+void twiAddr(uint8_t addr, uint8_t typeTWI) {
   TWDR = addr;//send address
   TWCR = _BV(TWINT) | _BV(TWEN);    /* clear interrupt to start transmission */
   while ((TWCR & _BV(TWINT)) == 0); /* wait for transmission */
@@ -465,7 +465,7 @@ void twiAddr(uint8_t addr, uint8_t typeTWI){
     error_led();
 }
 
-void wrReg(uint8_t reg, uint8_t dat){
+void wrReg(uint8_t reg, uint8_t dat) {
   //send start condition
   twiStart();
   twiAddr(camAddr_WR, TW_MT_SLA_ACK);
@@ -475,15 +475,15 @@ void wrReg(uint8_t reg, uint8_t dat){
   _delay_ms(1);
 }
 
-static uint8_t twiRd(uint8_t nack){
-  if (nack){
+static uint8_t twiRd(uint8_t nack) {
+  if (nack) {
     TWCR = _BV(TWINT) | _BV(TWEN);
     while ((TWCR & _BV(TWINT)) == 0); /* wait for transmission */
     if ((TWSR & 0xF8) != TW_MR_DATA_NACK)
       error_led();
     return TWDR;
   }
-  else{
+  else {
     TWCR = _BV(TWINT) | _BV(TWEN) | _BV(TWEA);
     while ((TWCR & _BV(TWINT)) == 0); /* wait for transmission */
     if ((TWSR & 0xF8) != TW_MR_DATA_ACK)
@@ -492,7 +492,7 @@ static uint8_t twiRd(uint8_t nack){
   }
 }
 
-uint8_t rdReg(uint8_t reg){
+uint8_t rdReg(uint8_t reg) {
   uint8_t dat;
   twiStart();
   twiAddr(camAddr_WR, TW_MT_SLA_ACK);
@@ -507,10 +507,10 @@ uint8_t rdReg(uint8_t reg){
   return dat;
 }
 
-void wrSensorRegs8_8(const struct regval_list reglist[]){
+void wrSensorRegs8_8(const struct regval_list reglist[]) {
   uint8_t reg_addr, reg_val;
   const struct regval_list *next = reglist;
-  while ((reg_addr != 0xff) | (reg_val != 0xff)){
+  while ((reg_addr != 0xff) | (reg_val != 0xff)) {
     reg_addr = pgm_read_byte(&next->reg_num);
     reg_val = pgm_read_byte(&next->value);
     wrReg(reg_addr, reg_val);
@@ -518,16 +518,16 @@ void wrSensorRegs8_8(const struct regval_list reglist[]){
   }
 }
 
-void setColor(void){
+void setColor(void) {
   wrSensorRegs8_8(yuv422_ov7670);
 }
 
-void setRes(void){
+void setRes(void) {
   wrReg(REG_COM3, 4); // REG_COM3 enable scaling
   wrSensorRegs8_8(qvga_ov7670);
 }
 
-void camInit(void){
+void camInit(void) {
   wrReg(0x12, 0x80);
   _delay_ms(100);
   wrSensorRegs8_8(ov7670_default_regs);
@@ -536,9 +536,9 @@ void camInit(void){
 
 void arduinoUnoInut(void) {
   cli();//disable interrupts
-  
-    /* Setup the 8mhz PWM clock
-  * This will be on pin 11*/
+
+  /* Setup the 8mhz PWM clock
+    This will be on pin 11*/
   DDRB |= (1 << 3);//pin 11
   ASSR &= ~(_BV(EXCLK) | _BV(AS2));
   TCCR2A = (1 << COM2A0) | (1 << WGM21) | (1 << WGM20);
@@ -547,54 +547,52 @@ void arduinoUnoInut(void) {
   DDRC &= ~15;//low d0-d3 camera
   DDRD &= ~252;//d7-d4 and interrupt pins
   _delay_ms(3000);
-  
-    //set up twi for 100khz
+
+  //set up twi for 100khz
   TWSR &= ~3;//disable prescaler for TWI
   TWBR = 72;//set to 100khz
-  
-    //enable serial
+
+  //enable serial
   UBRR0H = 0;
-  UBRR0L = 1;//0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
-  UCSR0A |= 2;//double speed aysnc
+  UBRR0L = 1;     //0 = 2M baud rate. 1 = 1M baud. 3 = 0.5M. 7 = 250k 207 is 9600 baud rate.
+  UCSR0A |= 2;    //double speed aysnc
   UCSR0B = (1 << RXEN0) | (1 << TXEN0);//Enable receiver and transmitter
   UCSR0C = 6;//async 1 stop bit 8bit char no parity bits
 }
 
 
-void StringPgm(const char * str){
-  do{
-      while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
-      UDR0 = pgm_read_byte_near(str);
-      while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
+void StringPgm(const char * str) {
+  do {
+    while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
+    UDR0 = pgm_read_byte_near(str);
+    while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
   } while (pgm_read_byte_near(++str));
 }
 
-static void captureImg(uint16_t wg, uint16_t hg){
+static void captureImg(uint16_t wg, uint16_t hg) {
   uint16_t y, x;
 
   StringPgm(PSTR("*RDY*"));
 
-  while (!(PIND & 8));//wait for high
-  while ((PIND & 8));//wait for low
+  while (!(PIND & 8));  //wait for high
+  while ((PIND & 8));   //wait for low
 
-    y = hg;
-  while (y--){
-        x = wg;
-      //while (!(PIND & 256));//wait for high
-    while (x--){
+  y = hg;
+  while (y--) {
+    x = wg;
+    while (x--) {
       while ((PIND & 4));//wait for low
-            UDR0 = (PINC & 15) | (PIND & 240);
-          while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
+      UDR0 = (PINC & 15) | (PIND & 240);
+      while (!(UCSR0A & (1 << UDRE0)));//wait for byte to transmit
       while (!(PIND & 4));//wait for high
       while ((PIND & 4));//wait for low
       while (!(PIND & 4));//wait for high
     }
-    //  while ((PIND & 256));//wait for low
   }
-    _delay_ms(100);
+  _delay_ms(200);
 }
 
-void setup(){
+void setup() {
   arduinoUnoInut();
   camInit();
   setRes();
@@ -603,7 +601,6 @@ void setup(){
 }
 
 
-void loop(){
+void loop() {
   captureImg(320, 240);
 }
-
