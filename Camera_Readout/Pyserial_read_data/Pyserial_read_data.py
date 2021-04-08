@@ -4,6 +4,7 @@ import os
 import sys
 import copy
 import time
+import math
 import serial
 import struct
 import socket
@@ -55,7 +56,10 @@ def main():
     print(len(read_bytes))
     with open("Camera_data.txt", 'w') as infile:                        # store camera data
         for i in range(len(read_bytes)):
-            infile.write("%d\n"%read_bytes[i])
+            x = math.floor(i/320)
+            y = math.floor(i%320)
+            # print(i, x, y)
+            infile.write("%3d %3d %3d\n"%(x, y, read_bytes[i]))
 
     x = np.reshape(read_bytes, (240, 320))                              # plot image
     plt.imshow(x, cmap='gray', vmin=0, vmax=255)
