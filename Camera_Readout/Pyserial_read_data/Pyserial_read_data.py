@@ -8,9 +8,7 @@ import math
 import serial
 import struct
 import socket
-import winsound
 import datetime
-import heartrate
 import numpy as np
 import pyvisa as visa
 import matplotlib.pyplot as plt
@@ -33,7 +31,10 @@ This script is used to receive UART data from Camera (Model: OV7670).
 def main():
     read_bytes = []
     Start_Frame = 5
-    ser = serial.Serial('COM5', baudrate=1000000, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
+    try:
+        ser = serial.Serial('COM5', baudrate=1000000, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
+    except:
+        ser = serial.Serial('/dev/tty.usbmodem144101', baudrate=1000000, bytesize=serial.EIGHTBITS, parity=serial.PARITY_NONE, stopbits=serial.STOPBITS_ONE)
     print("Serial port: %s"%ser.name)
     i = 0
     while(True):
